@@ -1,0 +1,1 @@
+[Lyric Video Maker](https://github.com/hdW76/lyric-video-maker) · [Releases](https://github.com/hdW76/lyric-video-maker/releases/latest) · [Signaler un problème](https://github.com/hdW76/lyric-video-maker/issues)

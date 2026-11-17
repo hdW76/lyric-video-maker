@@ -1,5 +1,7 @@
 # Lyric Video Maker
 
+📖 **[Wiki complet](../../wiki)** : installation, paroles LRC, pochettes, formats, dépannage, développement.
+
 Appli Windows qui transforme une musique en **vidéo de paroles** prête à publier :
 
 - la vidéo dure **tout le morceau** ;
@@ -80,6 +82,7 @@ On peut aussi la relancer à la main depuis l'onglet **Actions → Build Windows
 app.py                interface (tkinter)
 lyricvideo_core.py    moteur : tags, pochette, paroles, rendu des images, encodage ffmpeg
 tests/                tests lancés par GitHub Actions (moteur, interface, exe)
+wiki/                 sources du wiki GitHub (publiées automatiquement)
 fonts/                police BBH Bogle + licence OFL
 run.bat / build.bat   lancement et création de l'exe sous Windows
 ```
