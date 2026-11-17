@@ -41,7 +41,9 @@ On peut aussi la relancer à la main depuis l'onglet **Actions → Build Windows
 ## Utilisation
 
 1. **Choisir une musique** (MP3, M4A, FLAC, OGG, WAV, AAC).
-   Le titre, l'artiste et la pochette sont lus dans les tags du fichier. Tu peux les modifier, ou choisir une autre image avec **Changer la pochette**.
+   Le titre, l'artiste et la pochette sont lus dans les tags du fichier. Si le fichier n'a pas de pochette,
+   l'appli la cherche en ligne (Deezer puis iTunes) à partir du titre et de l'artiste.
+   Tu peux corriger le titre/l'artiste puis cliquer **Chercher la pochette en ligne**, ou choisir ta propre image avec **Changer la pochette**.
 2. Les **paroles synchronisées** sont cherchées automatiquement sur [LRCLIB](https://lrclib.net) (base gratuite et ouverte).
    Si rien n'est trouvé, colle les paroles dans la zone de texte :
    - au **format LRC** (`[01:23.45] ma ligne`) → synchro exacte ;
@@ -88,7 +90,7 @@ remplacés par `"` et `œ` par `oe`. La police s'affiche toujours en majuscules 
 ## Limites connues
 
 - Les paroles en texte simple ne sont pas vraiment synchronisées : utilise du LRC pour un résultat propre.
-- La recherche de paroles nécessite une connexion internet.
+- La recherche de paroles et de pochette nécessite une connexion internet.
 - Pense aux droits d'auteur avant de publier une vidéo avec une musique qui ne t'appartient pas.
 
 ## Licence

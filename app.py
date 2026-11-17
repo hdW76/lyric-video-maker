@@ -36,7 +36,10 @@ class App(tk.Tk):
         ttk.Label(info, text="Artiste").grid(row=1, column=1, sticky="e")
         ttk.Entry(info, textvariable=self.artist_var, width=50).grid(row=1, column=2, pady=2)
         ttk.Button(info, text="Changer la pochette…", command=self.pick_cover).grid(
-            row=0, column=3, padx=10)
+            row=0, column=3, padx=10, sticky="ew")
+        ttk.Button(info, text="Chercher la pochette en ligne",
+                   command=lambda: (setattr(self, "cover", None), self.find_cover())).grid(
+            row=1, column=3, padx=10, sticky="ew")
         ttk.Label(info, text="Format").grid(row=2, column=1, sticky="e")
         self.ratio_var = tk.StringVar(value=list(core.RATIOS)[0])
         ttk.Combobox(info, textvariable=self.ratio_var, values=list(core.RATIOS),
@@ -79,7 +82,28 @@ class App(tk.Tk):
         self.title_var.set(title)
         self.artist_var.set(artist)
         self.show_thumb()
+        if cover is None:
+            self.find_cover()
         self.search()
+
+    def find_cover(self):
+        self.thumb.config(image="", text="Recherche\nde la\npochette…")
+        t, a = self.title_var.get(), self.artist_var.get()
+
+        def work():
+            img = core.fetch_cover_online(t, a)
+            self.after(0, lambda: self.on_cover(img))
+        threading.Thread(target=work, daemon=True).start()
+
+    def on_cover(self, img):
+        if img and self.cover is None:
+            self.cover = img
+        self.show_thumb()
+        if self.cover is None:
+            messagebox.showinfo(
+                "Pochette",
+                "Aucune pochette dans le fichier ni en ligne.\n"
+                "Utilise « Changer la pochette… » pour en choisir une.")
 
     def pick_cover(self):
         p = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.jpeg *.png *.webp")])
@@ -90,11 +114,15 @@ class App(tk.Tk):
 
     def show_thumb(self):
         if self.cover:
-            im = Image.open(io.BytesIO(self.cover)).convert("RGB")
-            im.thumbnail((80, 80))
-            self._tk = ImageTk.PhotoImage(im)
-            self.thumb.config(image=self._tk)
-        else:
+            try:
+                im = Image.open(io.BytesIO(self.cover)).convert("RGB")
+                im.thumbnail((80, 80))
+                self._tk = ImageTk.PhotoImage(im)
+                self.thumb.config(image=self._tk, text="")
+                return
+            except Exception:
+                self.cover = None
+        if True:
             self.thumb.config(image="", text="(pas de\npochette)")
 
     def search(self):

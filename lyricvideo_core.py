@@ -34,38 +34,107 @@ def read_tags(path):
     cover = None
     audio = File(path)
     duration = float(audio.info.length) if audio is not None else 0.0
-    if audio is not None and audio.tags is not None:
-        tags = audio.tags
-        # MP3 (ID3)
-        for k in tags.keys():
-            if k.startswith("APIC") and cover is None:
-                cover = tags[k].data
-        if "TIT2" in tags:
-            title = str(tags["TIT2"])
-        if "TPE1" in tags:
-            artist = str(tags["TPE1"])
-        # MP4/M4A
-        if "\xa9nam" in tags:
-            title = str(tags["\xa9nam"][0])
-        if "\xa9ART" in tags:
-            artist = str(tags["\xa9ART"][0])
-        if "covr" in tags and tags["covr"]:
-            cover = bytes(tags["covr"][0])
-        # Vorbis / FLAC / OGG
-        if hasattr(tags, "get"):
+    tags = audio.tags if audio is not None else None
+    if tags is not None:
+        def first(key):
             try:
-                if tags.get("title"):
-                    title = str(tags.get("title")[0])
-                if tags.get("artist"):
-                    artist = str(tags.get("artist")[0])
+                v = tags[key]
             except Exception:
-                pass
+                return None
+            if isinstance(v, list):
+                v = v[0] if v else None
+            return v
+        keys = []
+        try:
+            keys = list(tags.keys())
+        except Exception:
+            pass
+        # MP3 / WAV / AIFF (ID3)
+        for k in keys:
+            if str(k).startswith("APIC") and cover is None:
+                cover = tags[k].data
+        title = first("TIT2") or first("\xa9nam") or first("title") or first("TITLE")
+        artist = first("TPE1") or first("\xa9ART") or first("artist") or first("ARTIST")
+        title = str(title) if title else None
+        artist = str(artist) if artist else None
+        # MP4 / M4A
+        c = first("covr")
+        if c is not None and cover is None:
+            cover = bytes(c)
     pics = getattr(audio, "pictures", None)
     if pics and cover is None:
         cover = pics[0].data
+    # OGG / Opus : pochette encodée en base64 dans METADATA_BLOCK_PICTURE
+    if cover is None and audio is not None and audio.tags is not None:
+        try:
+            import base64
+            from mutagen.flac import Picture
+            for b64 in audio.tags.get("metadata_block_picture", []) or []:
+                cover = Picture(base64.b64decode(b64)).data
+                break
+        except Exception:
+            pass
+    if cover is None:
+        cover = extract_cover_ffmpeg(path)
     if not title:
         title = os.path.splitext(os.path.basename(path))[0]
     return title, artist or "", duration, cover
+
+
+def _valid_image(data):
+    try:
+        Image.open(io.BytesIO(data)).verify()
+        return True
+    except Exception:
+        return False
+
+
+def extract_cover_ffmpeg(path):
+    """Dernier recours local : laisse ffmpeg extraire l'image intégrée (tous formats)."""
+    try:
+        import imageio_ffmpeg
+        cmd = [imageio_ffmpeg.get_ffmpeg_exe(), "-loglevel", "error", "-i", path,
+               "-an", "-frames:v", "1", "-f", "image2pipe", "-c:v", "png", "-"]
+        flags = 0x08000000 if os.name == "nt" else 0
+        r = subprocess.run(cmd, capture_output=True, timeout=30, creationflags=flags)
+        if r.returncode == 0 and r.stdout and _valid_image(r.stdout):
+            return r.stdout
+    except Exception:
+        pass
+    return None
+
+
+def fetch_cover_online(title, artist):
+    """Cherche la pochette sur Deezer puis iTunes. Retourne des octets d'image ou None."""
+    hdr = {"User-Agent": "LyricVideoMaker/1.0"}
+
+    def get(url, as_json=True):
+        req = urllib.request.Request(url, headers=hdr)
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = r.read()
+        return json.loads(data.decode("utf-8")) if as_json else data
+
+    q = f"{artist} {title}".strip()
+    try:
+        d = get("https://api.deezer.com/search?" + urllib.parse.urlencode({"q": q, "limit": 1}))
+        url = d["data"][0]["album"].get("cover_xl") if d.get("data") else None
+        if url:
+            img = get(url, as_json=False)
+            if _valid_image(img):
+                return img
+    except Exception:
+        pass
+    try:
+        d = get("https://itunes.apple.com/search?" +
+                urllib.parse.urlencode({"term": q, "entity": "song", "limit": 1}))
+        if d.get("results"):
+            url = d["results"][0]["artworkUrl100"].replace("100x100bb", "1000x1000bb")
+            img = get(url, as_json=False)
+            if _valid_image(img):
+                return img
+    except Exception:
+        pass
+    return None
 
 
 # ------------------------------------------------------------------ paroles
@@ -224,9 +293,13 @@ def draw_text(draw, xy, text, font, fill):
 
 
 def make_background(cover_bytes, title, artist):
+    img = None
     if cover_bytes:
-        img = Image.open(io.BytesIO(cover_bytes)).convert("RGB")
-    else:
+        try:
+            img = Image.open(io.BytesIO(cover_bytes)).convert("RGB")
+        except Exception:
+            img = None
+    if img is None:
         img = Image.new("RGB", (W, H), (25, 25, 35))
     s = max(W / img.width, H / img.height)
     img = img.resize((int(img.width * s) + 1, int(img.height * s) + 1), Image.LANCZOS)
