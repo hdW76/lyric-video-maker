@@ -16,15 +16,32 @@ Appli Windows qui transforme une musique en **vidéo de paroles** prête à publ
 
 ## Installation (Windows)
 
+### Le plus simple : télécharger l'exe
+
+1. Va dans **[Releases](../../releases/latest)** et télécharge **`LyricVideoMaker.exe`**.
+2. Double-clique dessus. Rien d'autre à installer (Python et ffmpeg sont inclus dans l'exe).
+
+> Au premier lancement, Windows SmartScreen peut afficher « Windows a protégé votre ordinateur » car l'exe n'est pas signé :
+> clique sur **Informations complémentaires → Exécuter quand même**. Le démarrage prend quelques secondes (l'exe se décompresse).
+
+### Depuis le code source
+
 1. Installe **Python 3.10 ou plus** depuis [python.org](https://www.python.org/downloads/) en cochant **« Add Python to PATH »**.
 2. Télécharge le projet : bouton **Code → Download ZIP**, puis dézippe-le.
-3. Au choix :
-   - **`run.bat`** : installe les dépendances et lance l'appli ;
-   - **`build.bat`** : crée un exécutable autonome `dist\LyricVideoMaker.exe` (plus besoin de Python ensuite).
-
-Pas besoin d'installer ffmpeg : il est fourni automatiquement par le paquet `imageio-ffmpeg`.
+3. Lance **`run.bat`** (installe les dépendances et ouvre l'appli), ou **`build.bat`** pour créer toi-même `dist\LyricVideoMaker.exe`.
 
 > L'appli fonctionne aussi sous macOS et Linux avec `pip install -r requirements.txt` puis `python app.py` (tkinter requis).
+
+### Publier une nouvelle version
+
+L'exe est construit automatiquement par GitHub Actions (`.github/workflows/build-exe.yml`) à chaque tag `v*` :
+
+```
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+La release apparaît quelques minutes plus tard avec l'exe en pièce jointe.
 
 ## Utilisation
 

@@ -1,0 +1,53 @@
+name: Build Windows exe
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installer les dépendances
+        run: python -m pip install -r requirements.txt
+
+      - name: Test rapide du moteur (rendu d'une vidéo de 5 s)
+        shell: python
+        run: |
+          import subprocess, imageio_ffmpeg, lyricvideo_core as c
+          ff = imageio_ffmpeg.get_ffmpeg_exe()
+          subprocess.run([ff, "-y", "-loglevel", "error", "-f", "lavfi", "-i",
+                          "sine=frequency=440:duration=5", "test.mp3"], check=True)
+          t, a, d, cov = c.read_tags("test.mp3")
+          ly = c.lyrics_from_text("[00:01.00]Été à Noël\n[00:03.00]Dernière ligne", d)
+          for size in c.RATIOS.values():
+              c.render_video("test.mp3", "test.mp4", t, a, cov, ly, d, size=size)
+          print("OK")
+
+      - name: Construire l'exe
+        run: >
+          python -m PyInstaller --noconfirm --onefile --windowed
+          --name LyricVideoMaker --add-data "fonts;fonts"
+          --collect-all imageio_ffmpeg app.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LyricVideoMaker
+          path: dist/LyricVideoMaker.exe
+
+      - name: Publier la release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/LyricVideoMaker.exe
+          generate_release_notes: true
