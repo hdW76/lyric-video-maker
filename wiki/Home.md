@@ -9,15 +9,15 @@ pochette en fond, paroles synchronisées au premier plan, titre et artiste en ba
 
 | Je veux… | Page |
 |---|---|
-| installer l'appli | [[Installation]] |
-| faire ma première vidéo | [[Utilisation]] |
-| comprendre / écrire des paroles synchronisées | [[Paroles et format LRC|Paroles-et-format-LRC]] |
-| savoir d'où vient la pochette | [[Pochettes]] |
-| choisir entre 16:9, 9:16, 1:1, 4:5 | [[Formats vidéo|Formats-video]] |
-| faire une vidéo sans paroles | [[Mode sans paroles|Mode-sans-paroles]] |
-| créer plusieurs vidéos d'un coup | [[Plusieurs vidéos en même temps|Plusieurs-videos]] |
-| régler un problème | [[FAQ et dépannage|FAQ-et-depannage]] |
-| modifier le code / contribuer | [[Développement|Developpement]] |
+| installer l'appli | [Installation](Installation) |
+| faire ma première vidéo | [Utilisation](Utilisation) |
+| comprendre / écrire des paroles synchronisées | [Paroles et format LRC](Paroles-et-format-LRC) |
+| savoir d'où vient la pochette | [Pochettes](Pochettes) |
+| choisir entre 16:9, 9:16, 1:1, 4:5 | [Formats vidéo](Formats-video) |
+| faire une vidéo sans paroles | [Mode sans paroles](Mode-sans-paroles) |
+| créer plusieurs vidéos d'un coup | [Plusieurs vidéos en même temps](Plusieurs-videos) |
+| régler un problème | [FAQ et dépannage](FAQ-et-depannage) |
+| modifier le code / contribuer | [Développement](Developpement) |
 
 ## En bref
 
