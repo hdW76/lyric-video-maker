@@ -1,0 +1,5 @@
+mutagen
+Pillow
+numpy
+imageio-ffmpeg
+pyinstaller
