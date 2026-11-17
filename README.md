@@ -32,16 +32,11 @@ Appli Windows qui transforme une musique en **vidéo de paroles** prête à publ
 
 > L'appli fonctionne aussi sous macOS et Linux avec `pip install -r requirements.txt` puis `python app.py` (tkinter requis).
 
-### Publier une nouvelle version
+### Nouvelles versions
 
-L'exe est construit automatiquement par GitHub Actions (`.github/workflows/build-exe.yml`) à chaque tag `v*` :
-
-```
-git tag v1.1.0
-git push origin v1.1.0
-```
-
-La release apparaît quelques minutes plus tard avec l'exe en pièce jointe.
+L'exe est reconstruit automatiquement par GitHub Actions (`.github/workflows/build-exe.yml`)
+à chaque modification du code sur `main` : une nouvelle release `v1.0.N` apparaît quelques minutes plus tard.
+On peut aussi la relancer à la main depuis l'onglet **Actions → Build Windows exe → Run workflow**.
 
 ## Utilisation
 

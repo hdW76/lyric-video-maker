@@ -2,7 +2,13 @@ name: Build Windows exe
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths:
+      - "app.py"
+      - "lyricvideo_core.py"
+      - "fonts/**"
+      - "requirements.txt"
+      - ".github/workflows/build-exe.yml"
   workflow_dispatch:
 
 permissions:
@@ -46,8 +52,11 @@ jobs:
           path: dist/LyricVideoMaker.exe
 
       - name: Publier la release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Lyric Video Maker v1.0.${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          make_latest: true
           files: dist/LyricVideoMaker.exe
           generate_release_notes: true
