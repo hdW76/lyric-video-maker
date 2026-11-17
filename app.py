@@ -49,7 +49,11 @@ class App(tk.Tk):
         lf.pack(fill="both", expand=True, padx=10, pady=10)
         bar = ttk.Frame(lf)
         bar.pack(fill="x")
-        ttk.Button(bar, text="Chercher les paroles (LRCLIB)", command=self.search).pack(side="left")
+        self.lyrics_on = tk.BooleanVar(value=True)
+        ttk.Checkbutton(bar, text="Afficher les paroles", variable=self.lyrics_on,
+                        command=self.toggle_lyrics).pack(side="left", padx=(0, 12))
+        self.search_btn = ttk.Button(bar, text="Chercher les paroles (LRCLIB)", command=self.search)
+        self.search_btn.pack(side="left")
         self.lyr_status = ttk.Label(bar, text="", padding=(10, 0))
         self.lyr_status.pack(side="left")
         self.text = tk.Text(lf, wrap="word", height=14)
@@ -67,6 +71,16 @@ class App(tk.Tk):
         self.status.pack(side="left")
 
     # ---------------------------------------------------------- actions
+    def toggle_lyrics(self):
+        on = self.lyrics_on.get()
+        self.text.config(state="normal" if on else "disabled",
+                         foreground="black" if on else "gray")
+        self.search_btn.config(state="normal" if on else "disabled")
+        if not on:
+            self.lyr_status.config(text="Sans paroles : pochette nette au centre, titre et artiste dessous.")
+        else:
+            self.lyr_status.config(text="")
+
     def pick(self):
         p = filedialog.askopenfilename(
             filetypes=[("Audio", "*.mp3 *.m4a *.flac *.wav *.ogg *.aac"), ("Tous", "*.*")])
@@ -138,8 +152,11 @@ class App(tk.Tk):
 
     def on_lyrics(self, res):
         if res:
+            st = self.text.cget("state")
+            self.text.config(state="normal")
             self.text.delete("1.0", "end")
             self.text.insert("1.0", res)
+            self.text.config(state=st)
             self.lyr_status.config(text="Paroles synchronisées trouvées.")
         else:
             self.lyr_status.config(
@@ -161,6 +178,7 @@ class App(tk.Tk):
         args = (self.audio, out, self.title_var.get(), self.artist_var.get(),
                 self.cover, lyrics, self.duration)
         size = core.RATIOS[self.ratio_var.get()]
+        show_lyrics = self.lyrics_on.get()
 
         def prog(v, txt):
             self.after(0, lambda: (self.bar.config(value=v * 100), self.status.config(text=txt)))
@@ -168,7 +186,7 @@ class App(tk.Tk):
         def work():
             try:
                 ok = core.render_video(*args, progress=prog, cancel=lambda: self.cancel_flag,
-                                       size=size)
+                                       size=size, show_lyrics=show_lyrics)
                 msg = ("Vidéo enregistrée :\n" + out) if ok else "Annulé."
                 self.after(0, lambda: messagebox.showinfo("Lyric Video Maker", msg))
             except Exception as e:

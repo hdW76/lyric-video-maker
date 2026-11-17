@@ -12,6 +12,10 @@ Appli Windows qui transforme une musique en **vidéo de paroles** prête à publ
 |---|---|
 | ![Aperçu 16:9](docs/apercu-16x9.png) | ![Aperçu 9:16](docs/apercu-9x16.png) |
 
+Sans paroles :
+
+![Aperçu sans paroles](docs/apercu-sans-paroles.png)
+
 ---
 
 ## Installation (Windows)
@@ -50,6 +54,8 @@ On peut aussi la relancer à la main depuis l'onglet **Actions → Build Windows
    - en **texte simple** (une ligne par phrase) → réparties régulièrement sur le morceau, donc approximatives.
    - une ligne LRC vide (`[02:10.00]`) crée une pause sans texte (solo, refrain instrumental…).
 3. Choisis le **Format**.
+   Décoche **Afficher les paroles** pour une vidéo sans paroles : la pochette s'affiche alors nette au centre
+   (sans flou), sur un fond uni de la couleur dominante de la pochette, avec le titre et l'artiste juste en dessous.
 4. **Créer la vidéo**, puis choisis où enregistrer le `.mp4`. Une barre de progression s'affiche ; le rendu est généralement bien plus rapide que la durée du morceau.
 
 ## Détails techniques

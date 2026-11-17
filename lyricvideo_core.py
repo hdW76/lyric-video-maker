@@ -292,6 +292,57 @@ def draw_text(draw, xy, text, font, fill):
                       fill=fill, width=max(2, int(th * 0.8)), joint="curve")
 
 
+def _fit_title(d, txt, size, max_w):
+    f = load_font(size)
+    while tlen(d, txt, f) > max_w and f.size > S(14):
+        f = load_font(f.size - S(2))
+    return f
+
+
+def make_cover_layout(cover_bytes, title, artist):
+    """Sans paroles : pochette nette centrée, titre + artiste juste en dessous, fond uni."""
+    img = None
+    if cover_bytes:
+        try:
+            img = Image.open(io.BytesIO(cover_bytes)).convert("RGB")
+        except Exception:
+            img = None
+    if img is not None:
+        avg = img.resize((1, 1), Image.LANCZOS).getpixel((0, 0))
+        bg_col = tuple(int(c * 0.35) for c in avg)
+    else:
+        bg_col = (25, 25, 35)
+    canvas = Image.new("RGB", (W, H), bg_col)
+    d = ImageDraw.Draw(canvas)
+    side = int(min(W * 0.75, H * 0.58))
+    f_t = _fit_title(d, title, S(40), W - 2 * S(60)) if title else None
+    f_a = _fit_title(d, artist, S(28), W - 2 * S(60)) if artist else None
+    gap = S(32)
+    block = side + gap + (f_t.size + S(10) if f_t else 0) + (f_a.size if f_a else 0)
+    top = (H - block) // 2
+    x = (W - side) // 2
+    if img is not None:
+        cov = img.resize((side, side), Image.LANCZOS)  # pochettes ~carrées
+        # ombre portée douce
+        sh = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(sh).rounded_rectangle([x, top + S(10), x + side, top + side + S(10)],
+                                             radius=S(14), fill=170)
+        sh = sh.filter(ImageFilter.GaussianBlur(S(18)))
+        canvas = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), canvas, sh)
+        mask = Image.new("L", (side, side), 0)
+        ImageDraw.Draw(mask).rounded_rectangle([0, 0, side - 1, side - 1], radius=S(14), fill=255)
+        canvas.paste(cov, (x, top), mask)
+        d = ImageDraw.Draw(canvas)
+    y = top + side + gap
+    for txt, f, col in ((title, f_t, (255, 255, 255)), (artist, f_a, (210, 210, 220))):
+        if not txt:
+            continue
+        w = tlen(d, txt, f)
+        draw_text(d, ((W - w) / 2, y), txt, f, col)
+        y += f.size + S(10)
+    return np.asarray(canvas, dtype=np.float32)
+
+
 def make_background(cover_bytes, title, artist):
     img = None
     if cover_bytes:
@@ -387,12 +438,16 @@ def to_bytes(arr):
 
 
 def render_video(audio_path, out_path, title, artist, cover, lyrics, duration,
-                 progress=None, cancel=None, size=(1920, 1080)):
+                 progress=None, cancel=None, size=(1920, 1080), show_lyrics=True):
     """lyrics : [(t, ligne)]. progress(float 0..1, texte). cancel() -> bool."""
     import imageio_ffmpeg
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
     set_size(*size)
-    bg = make_background(cover, title, artist)
+    if show_lyrics:
+        bg = make_background(cover, title, artist)
+    else:
+        bg = make_cover_layout(cover, title, artist)
+        lyrics = []
     bg_bytes = to_bytes(bg)
 
     # une entrée par ligne ; ligne vide = pause instrumentale
