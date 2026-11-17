@@ -510,3 +510,21 @@ def render_video(audio_path, out_path, title, artist, cover, lyrics, duration,
     if progress:
         progress(1.0, "Terminé")
     return True
+
+
+def render_job(job_id, kwargs, msgq, cancel_ev):
+    """Rendu d'une vidéo dans un processus fils (mode « plusieurs vidéos »).
+    Envoie dans msgq des tuples (type, id, valeur) : progress / done / error."""
+    try:
+        last = [-1]
+
+        def prog(v, _txt):
+            pct = int(v * 100)
+            if pct != last[0]:
+                last[0] = pct
+                msgq.put(("progress", job_id, pct))
+
+        ok = render_video(progress=prog, cancel=cancel_ev.is_set, **kwargs)
+        msgq.put(("done", job_id, ok))
+    except Exception as e:  # noqa: BLE001
+        msgq.put(("error", job_id, str(e)))

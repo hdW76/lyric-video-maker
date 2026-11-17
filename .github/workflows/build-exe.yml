@@ -8,6 +8,7 @@ on:
       - "lyricvideo_core.py"
       - "fonts/**"
       - "requirements.txt"
+      - "tests/**"
       - ".github/workflows/build-exe.yml"
   workflow_dispatch:
 
@@ -27,26 +28,27 @@ jobs:
       - name: Installer les dépendances
         run: python -m pip install -r requirements.txt
 
-      - name: Test rapide du moteur (rendu d'une vidéo de 5 s)
-        shell: python
-        run: |
-          import os, sys, subprocess, imageio_ffmpeg
-          sys.path.insert(0, os.getcwd())
-          import lyricvideo_core as c
-          ff = imageio_ffmpeg.get_ffmpeg_exe()
-          subprocess.run([ff, "-y", "-loglevel", "error", "-f", "lavfi", "-i",
-                          "sine=frequency=440:duration=5", "test.mp3"], check=True)
-          t, a, d, cov = c.read_tags("test.mp3")
-          ly = c.lyrics_from_text("[00:01.00]Été à Noël\n[00:03.00]Dernière ligne", d)
-          for size in c.RATIOS.values():
-              c.render_video("test.mp3", "test.mp4", t, a, cov, ly, d, size=size)
-          print("OK")
+      - name: Test du moteur (tous les formats, avec et sans paroles)
+        run: python tests/smoke_engine.py
+
+      - name: Test de l'interface (3 vidéos en parallèle)
+        run: python tests/smoke_gui.py
 
       - name: Construire l'exe
         run: >
           python -m PyInstaller --noconfirm --onefile --windowed
           --name LyricVideoMaker --add-data "fonts;fonts"
           --collect-all imageio_ffmpeg app.py
+
+      - name: Tester l'exe (rendu en parallèle dans l'exe)
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath dist\LyricVideoMaker.exe -ArgumentList "--selftest", "$PWD\exe_test" -PassThru
+          if (-not $p.WaitForExit(300000)) { $p.Kill(); throw "exe bloqué" }
+          Get-ChildItem exe_test
+          $r = Get-Content exe_test\selftest.txt -Raw
+          Write-Output $r
+          if (-not $r.StartsWith("OK")) { throw "selftest en échec" }
 
       - uses: actions/upload-artifact@v4
         with:

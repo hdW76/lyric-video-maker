@@ -39,24 +39,30 @@ Sans paroles :
 ### Nouvelles versions
 
 L'exe est reconstruit automatiquement par GitHub Actions (`.github/workflows/build-exe.yml`)
-à chaque modification du code sur `main` : une nouvelle release `v1.0.N` apparaît quelques minutes plus tard.
+à chaque modification du code sur `main`. Le moteur, l'interface et l'exe final sont testés avant publication,
+puis une nouvelle release `v1.0.N` apparaît quelques minutes plus tard.
 On peut aussi la relancer à la main depuis l'onglet **Actions → Build Windows exe → Run workflow**.
 
 ## Utilisation
 
-1. **Choisir une musique** (MP3, M4A, FLAC, OGG, WAV, AAC).
-   Le titre, l'artiste et la pochette sont lus dans les tags du fichier. Si le fichier n'a pas de pochette,
-   l'appli la cherche en ligne (Deezer puis iTunes) à partir du titre et de l'artiste.
-   Tu peux corriger le titre/l'artiste puis cliquer **Chercher la pochette en ligne**, ou choisir ta propre image avec **Changer la pochette**.
-2. Les **paroles synchronisées** sont cherchées automatiquement sur [LRCLIB](https://lrclib.net) (base gratuite et ouverte).
-   Si rien n'est trouvé, colle les paroles dans la zone de texte :
-   - au **format LRC** (`[01:23.45] ma ligne`) → synchro exacte ;
-   - en **texte simple** (une ligne par phrase) → réparties régulièrement sur le morceau, donc approximatives.
-   - une ligne LRC vide (`[02:10.00]`) crée une pause sans texte (solo, refrain instrumental…).
-3. Choisis le **Format**.
-   Décoche **Afficher les paroles** pour une vidéo sans paroles : la pochette s'affiche alors nette au centre
-   (sans flou), sur un fond uni de la couleur dominante de la pochette, avec le titre et l'artiste juste en dessous.
-4. **Créer la vidéo**, puis choisis où enregistrer le `.mp4`. Une barre de progression s'affiche ; le rendu est généralement bien plus rapide que la durée du morceau.
+1. **Ajouter des musiques…** : choisis un ou plusieurs fichiers (MP3, M4A, FLAC, OGG, Opus, WAV, AAC).
+   Ils apparaissent dans la liste avec leur format, l'état des paroles et l'état du rendu.
+2. Clique sur une musique de la liste pour modifier **ses** réglages (chaque musique a les siens) :
+   - **Titre / Artiste** : lus dans les tags du fichier, modifiables.
+   - **Pochette** : lue dans le fichier ; sinon cherchée en ligne (Deezer puis iTunes). Boutons
+     **Chercher la pochette en ligne** et **Changer la pochette…** pour corriger.
+   - **Format** : 16:9 (YouTube), 9:16 (TikTok / Reels / Shorts), 1:1 ou 4:5 (Instagram).
+   - **Paroles** : cherchées automatiquement sur [LRCLIB](https://lrclib.net). Sinon, colle-les :
+     - au **format LRC** (`[01:23.45] ma ligne`) → synchro exacte ;
+     - en **texte simple** → réparties régulièrement sur le morceau (approximatif) ;
+     - une ligne LRC vide (`[02:10.00]`) crée une pause sans texte.
+   - **Afficher les paroles** décoché : pochette nette au centre (sans flou), sur un fond uni de sa couleur
+     dominante, avec le titre et l'artiste juste en dessous.
+   - **Appliquer ce format et ce mode à toutes** copie le format et le choix avec/sans paroles sur toute la liste.
+3. Règle **Vidéos en même temps** (par défaut : la moitié des cœurs de ton processeur, 4 max).
+4. **Créer toutes les vidéos**, puis choisis le dossier de sortie. Chaque vidéo est enregistrée sous le nom
+   du fichier audio (`ma musique.mp4`, sans jamais écraser un fichier existant). La colonne **État** suit
+   chaque rendu, et **Annuler** arrête tout.
 
 ## Détails techniques
 
@@ -65,13 +71,15 @@ On peut aussi la relancer à la main depuis l'onglet **Actions → Build Windows
 | Sortie | MP4 H.264 (CRF 20) + AAC 192 kb/s, 30 images/s |
 | Résolutions | 1920×1080, 1080×1920, 1080×1080, 1080×1350 |
 | Paroles | API LRCLIB `/api/get` puis `/api/search` (le résultat dont la durée est la plus proche) |
+| Rendu en parallèle | un processus par vidéo (`ProcessPoolExecutor`), donc plusieurs cœurs utilisés |
 | Dépendances | `mutagen` (tags), `Pillow` + `numpy` (images), `imageio-ffmpeg` (encodage), `pyinstaller` (exe) |
 
 ### Structure
 
 ```
 app.py                interface (tkinter)
-lyricvideo_core.py    moteur : tags, paroles, rendu des images, encodage ffmpeg
+lyricvideo_core.py    moteur : tags, pochette, paroles, rendu des images, encodage ffmpeg
+tests/                tests lancés par GitHub Actions (moteur, interface, exe)
 fonts/                police BBH Bogle + licence OFL
 run.bat / build.bat   lancement et création de l'exe sous Windows
 ```
