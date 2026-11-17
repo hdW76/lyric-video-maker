@@ -30,7 +30,9 @@ jobs:
       - name: Test rapide du moteur (rendu d'une vidéo de 5 s)
         shell: python
         run: |
-          import subprocess, imageio_ffmpeg, lyricvideo_core as c
+          import os, sys, subprocess, imageio_ffmpeg
+          sys.path.insert(0, os.getcwd())
+          import lyricvideo_core as c
           ff = imageio_ffmpeg.get_ffmpeg_exe()
           subprocess.run([ff, "-y", "-loglevel", "error", "-f", "lavfi", "-i",
                           "sine=frequency=440:duration=5", "test.mp3"], check=True)
