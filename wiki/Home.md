@@ -1,5 +1,9 @@
 # Lyric Video Maker — Wiki
 
+**Pages :** [Installation](Installation) · [Utilisation](Utilisation) · [Paroles et format LRC](Paroles-et-format-LRC) · [Pochettes](Pochettes) · [Formats vidéo](Formats-video) · [Mode sans paroles](Mode-sans-paroles) · [Plusieurs vidéos en même temps](Plusieurs-videos) · [FAQ et dépannage](FAQ-et-depannage) · [Développement](Developpement)
+
+**[⬇ Télécharger l'exe](https://github.com/hdW76/lyric-video-maker/releases/latest)**
+
 **Lyric Video Maker** est une appli Windows qui transforme une musique en vidéo prête à publier :
 pochette en fond, paroles synchronisées au premier plan, titre et artiste en bas.
 

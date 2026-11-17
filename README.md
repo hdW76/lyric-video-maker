@@ -1,6 +1,8 @@
 # Lyric Video Maker
 
-📖 **[Wiki complet](../../wiki)** : installation, paroles LRC, pochettes, formats, dépannage, développement.
+📖 **[Wiki](https://github.com/hdW76/lyric-video-maker/wiki)** : [Installation](https://github.com/hdW76/lyric-video-maker/wiki/Installation) · [Utilisation](https://github.com/hdW76/lyric-video-maker/wiki/Utilisation) · [Paroles et format LRC](https://github.com/hdW76/lyric-video-maker/wiki/Paroles-et-format-LRC) · [Pochettes](https://github.com/hdW76/lyric-video-maker/wiki/Pochettes) · [Formats vidéo](https://github.com/hdW76/lyric-video-maker/wiki/Formats-video) · [Mode sans paroles](https://github.com/hdW76/lyric-video-maker/wiki/Mode-sans-paroles) · [Plusieurs vidéos en même temps](https://github.com/hdW76/lyric-video-maker/wiki/Plusieurs-videos) · [FAQ et dépannage](https://github.com/hdW76/lyric-video-maker/wiki/FAQ-et-depannage) · [Développement](https://github.com/hdW76/lyric-video-maker/wiki/Developpement)
+
+⬇ **[Télécharger l'exe](https://github.com/hdW76/lyric-video-maker/releases/latest)**
 
 Appli Windows qui transforme une musique en **vidéo de paroles** prête à publier :
 
